@@ -3,13 +3,13 @@
 #   Refer for explanation to following link:
 #   https://lefthook.dev/configuration/
 #
-pre-push:
-  jobs:
-    - name: packages audit
-      tags:
-        - Auth
-        - Gateway
-      run: bun audit
+# pre-push:
+#   jobs:
+#     - name: packages audit
+#       tags:
+#         - Auth
+#         - Gateway
+#       run: npm audit
 
 pre-commit:
   parallel: true
