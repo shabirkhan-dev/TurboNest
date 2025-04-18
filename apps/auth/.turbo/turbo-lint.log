@@ -1,0 +1,2 @@
+$ biome check --write src
+Checked 2 files in 8ms. No fixes applied.

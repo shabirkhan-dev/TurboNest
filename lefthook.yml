@@ -1,0 +1,25 @@
+# EXAMPLE USAGE:
+#
+#   Refer for explanation to following link:
+#   https://lefthook.dev/configuration/
+#
+pre-push:
+  jobs:
+    - name: packages audit
+      tags:
+        - Auth
+        - Gateway
+      run: bun audit
+
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: bun lint
+    typecheck:
+      run: bun tsc --noEmit
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}

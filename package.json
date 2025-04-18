@@ -1,0 +1,88 @@
+{
+	"name": "vendora",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	],
+	"scripts": {
+		"build": "turbo run build",
+		"dev": "turbo run dev",
+		"lint": "turbo run lint",
+		"clean": "turbo run clean && rm -rf node_modules",
+		"typecheck": "tsc --noEmit --pretty",
+		"prepare": "lefthook install",
+		"commit": "cz",
+		"deps:update": "bun update --latest",
+		"deps:check": "bun npm-check-updates",
+		"manypkg": "manypkg check",
+		"knip": "knip"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.0.0-beta.1",
+		"@changesets/cli": "^2.29.2",
+		"@commitlint/cli": "^19.8.0",
+		"@commitlint/config-conventional": "^19.8.0",
+		"@commitlint/cz-commitlint": "^19.8.0",
+		"@manypkg/cli": "^0.23.0",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/git": "^10.0.1",
+		"@types/bun": "latest",
+		"@vendora/tsconfig": "workspace:*",
+		"commitizen": "^4.3.1",
+		"knip": "^5.50.5",
+		"lefthook": "^1.11.10",
+		"npm-check-updates": "^17.1.18",
+		"rimraf": "^6.0.1",
+		"semantic-release": "^24.2.3",
+		"turbo": "^2.5.0",
+		"typescript": "^5.8.3"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"config": {
+		"commitizen": {
+			"path": "@commitlint/cz-commitlint"
+		}
+	},
+	"release": {
+		"branches": [
+			"main"
+		],
+		"plugins": [
+			[
+				"@semantic-release/commit-analyzer",
+				{
+					"preset": "conventionalcommits"
+				}
+			],
+			"@semantic-release/release-notes-generator",
+			"@semantic-release/changelog",
+			[
+				"@semantic-release/npm",
+				{
+					"npmPublish": false
+				}
+			],
+			"@semantic-release/git",
+			"@semantic-release/github"
+		]
+	},
+	"packageManager": "bun@1.2.10",
+	"trustedDependencies": [
+		"core-js"
+	],
+	"engines": {
+		"node": ">=18.0.0",
+		"bun": ">=1.2.10",
+		"pnpm": ">=10.0.0"
+	},
+	"author": {
+		"name": "Shabir Khan",
+		"email": "shabirkhan.dev@gamil.com",
+		"url": "https://shabirkhan.dev"
+	}
+}
