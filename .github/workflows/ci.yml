@@ -1,31 +1,42 @@
-name: CI
+name: TurboRepo + Bun CI
 
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
     branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
+          bun-version: latest
+
+      # Optional: cache .bun and turbo cache
+      - name: Restore Bun & Turbo cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.bun/install/cache
+            .turbo
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies with Bun
+        run: bun install
+
       - name: Lint
-        run: npm run lint
-        
+        run: bun run lint
+
       - name: Build
-        run: npm run build
-        
+        run: bun run build
+
       - name: Test
-        run: npm test
+        run: bun run test
