@@ -15,7 +15,7 @@
 		"express": "^5.1.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.0.0-beta.1",
+		"@biomejs/biome": "^2.0.0-beta.2",
 		"@types/bun": "latest",
 		"@types/express": "^5.0.1",
 		"@vendora/tsconfig": "workspace:*",
