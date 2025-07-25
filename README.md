@@ -1,6 +1,6 @@
-# 🪺 TurboNest – The All-in-One Monorepo Starter Kit
+# 🚗 Drive Connect – Full-Stack Monorepo
 
-**TurboNest** is a modern, scalable monorepo boilerplate built on top of [Turborepo](https://turbo.build/), [Next.js](https://nextjs.org/), [Bun](https://bun.sh/), and [TypeScript](https://www.typescriptlang.org/). With enterprise-grade tooling out of the box—CI, Git hooks, semantic releases, security scans, and commit standards—TurboNest lets your team focus on shipping features, not configuring them.
+**Drive Connect** is a modern, scalable monorepo built with [Turborepo](https://turbo.build/), [Next.js](https://nextjs.org/), [Express.js](https://expressjs.com/), [Bun](https://bun.sh/), and [TypeScript](https://www.typescriptlang.org/). Complete with Docker containerization, PostgreSQL database, and enterprise-grade tooling—CI, Git hooks, semantic releases, security scans, and commit standards.
 
 ---
 
@@ -8,7 +8,10 @@
 
 - 🧠 **Turborepo** – monorepo orchestration
 - ⚡️ **Bun** – super-fast runtime & package manager
-- ✨ **Next.js (App Router)** – modern frontend foundation
+- ✨ **Next.js (App Router)** – modern frontend with React 19
+- 🚀 **Express.js** – robust backend API with Bun runtime
+- 🐘 **PostgreSQL** – reliable database with Docker
+- 🐳 **Docker** – full containerization with multi-stage builds
 - 🔒 **Lefthook** – commit linting, typechecks, and more via Git hooks
 - 🧪 **TypeScript strict mode** – shared config across apps
 - 🧰 **Commitlint + Commitizen** – clean commit history
@@ -23,19 +26,20 @@
 ## 🏗️ Folder Structure
 
 ```
-turbonest/
+drive-connect/
 ├── apps/
-│   ├── gateway/       # Main Next.js app
-│   └── admin/         # Optional admin panel
+│   ├── front-end/     # Next.js frontend (React 19, Tailwind)
+│   └── backend/       # Express.js API (Bun runtime)
 ├── packages/
-│   ├── ui/            # Shared design system
-│   ├── types/         # Global TS types
-│   └── config/        # Shared tooling config (tsconfig, eslint, etc.)
+│   └── tsconfig/      # Shared TypeScript configurations
 ├── .github/
-│   ├── workflows/     # CI, CodeQL, SonarQube
-├── .lefthook.yml      # Git hooks config
-├── turbo.json         # Turborepo pipeline
-├── commitlint.config.js
+│   ├── workflows/     # CI, CodeQL, SonarQube, Playwright
+├── tests/             # E2E tests with Playwright
+├── docker-compose.yml # Docker orchestration
+├── init.sql          # PostgreSQL initialization
+├── CLAUDE.md         # AI assistant context
+├── lefthook.yml      # Git hooks config
+├── turbo.json        # Turborepo pipeline
 └── bun.lockb
 ```
 
@@ -43,11 +47,39 @@ turbonest/
 
 ## 🚀 Getting Started
 
+### Development Setup
+
 ```bash
-git clone https://github.com/your-org/turbonest.git
-cd turbonest
+git clone https://github.com/shabirkhan-dev/drive-connect.git
+cd drive-connect
 bun install
 bun run dev
+```
+
+### Docker Setup (Recommended)
+
+```bash
+# Start all services (PostgreSQL + Backend + Frontend)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Individual Services
+
+```bash
+# Frontend (Next.js) - http://localhost:3000
+cd apps/front-end && bun dev
+
+# Backend (Express) - http://localhost:8000
+cd apps/backend && bun run start
+
+# Database
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres123 postgres:16-alpine
 ```
 
 ---
@@ -58,13 +90,27 @@ bun run dev
 |--------|-------------|
 | `bun run dev` | Start all apps in dev mode |
 | `bun run build` | Build all apps and packages |
-| `bun run lint` | Run ESLint across the monorepo |
+| `bun run lint` | Run Biome linting across the monorepo |
+| `bun run test` | Run all tests (unit + e2e) |
+| `bun run test:e2e` | Run Playwright e2e tests |
+| `bun run test:e2e:ui` | Run tests with Playwright UI |
+| `bun run test:e2e:debug` | Run tests in debug mode |
 | `bun run typecheck` | Type-check only (no emit) |
 | `bun run commit` | Commit using commitizen prompts |
 | `bun run deps:update` | Update all dependencies |
 | `bun run deps:check` | Show outdated dependencies |
 | `bun run manypkg` | Validate workspace consistency |
 | `bun run knip` | Find unused files/exports |
+
+### 🐳 Docker Commands
+
+| Command | Description |
+|---------|-------------|
+| `docker-compose up -d` | Start all services in background |
+| `docker-compose down` | Stop and remove containers |
+| `docker-compose logs -f` | Follow logs from all services |
+| `docker-compose ps` | Show running containers |
+| `docker-compose exec postgres psql -U postgres -d drive_connect` | Connect to PostgreSQL |
 
 ---
 
@@ -90,6 +136,48 @@ TurboNest uses **GitHub Actions** to automate everything:
 - Auto-changelog, tagging, and version bumps
 
 > 🧠 Just write commits properly (`feat:`, `fix:`, `chore:`), and releases happen automatically!
+
+---
+
+## 🧪 Testing
+
+TurboNest includes comprehensive testing with **Playwright** for end-to-end testing:
+
+### **E2E Testing with Playwright**
+
+- ✅ **Cross-browser testing** (Chrome, Firefox, Safari, Mobile)
+- ✅ **Parallel execution** for fast test runs
+- ✅ **Visual regression testing** with screenshots and videos
+- ✅ **Accessibility testing** with semantic selectors
+- ✅ **CI/CD integration** with GitHub Actions
+- ✅ **Debug mode** for troubleshooting
+
+### **Quick Test Commands**
+
+```bash
+# Run all e2e tests
+bun run test:e2e
+
+# Run tests with UI (interactive)
+bun run test:e2e:ui
+
+# Run tests in debug mode
+bun run test:e2e:debug
+
+# View test reports
+bun run test:e2e:report
+```
+
+### **Test Structure**
+
+```
+tests/
+├── example.spec.ts          # Basic example tests
+├── drive-connect.spec.ts    # Drive Connect specific tests
+└── README.md               # Detailed testing guide
+```
+
+See [`tests/README.md`](./tests/README.md) for comprehensive testing documentation.
 
 ---
 
@@ -130,7 +218,10 @@ Examples:
 
 | Tool | Purpose |
 |------|---------|
-| **Next.js** | Frontend / SSR |
+| **Next.js** | Frontend framework |
+| **Express.js** | Backend API |
+| **PostgreSQL** | Database |
+| **Docker** | Containerization |
 | **Turborepo** | Monorepo orchestration |
 | **Bun** | Fast runtime & package manager |
 | **TypeScript** | Static typing |
@@ -157,10 +248,10 @@ This repo uses Bun workspaces:
 Use aliases like:
 
 ```ts
-import { Button } from "@vendora/ui";
+import { Button } from "@/components/ui/button";
 ```
 
-> TS paths are configured via `@vendora/tsconfig`.
+> TS paths are configured via shared `@vendora/tsconfig` package.
 
 ---
 
