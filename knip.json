@@ -1,7 +1,19 @@
 {
-	"$schema": "https://unpkg.com/knip@2/schema.json",
-	"entry": ["src/index.ts"],
-	"project": ["src/**/*.ts"],
-	"ignore": ["**/*.test.ts"],
-	"ignoreDependencies": ["typescript", "@types/*"]
+  "$schema": "https://unpkg.com/knip@2/schema.json",
+  "workspaces": {
+    "apps/*": {
+      "entry": ["src/index.ts", "src/app.ts", "src/server.ts", "src/main.ts"],
+      "project": ["src/**/*.{ts,tsx,js,jsx}"]
+    },
+    "packages/*": {
+      "entry": ["src/index.ts", "index.ts"],
+      "project": ["src/**/*.{ts,tsx,js,jsx}"]
+    }
+  },
+  "ignore": [
+    "**/*.test.{ts,tsx,js,jsx}",
+    "**/*.spec.{ts,tsx,js,jsx}",
+    "**/*.config.{ts,js}"
+  ],
+  "ignoreDependencies": ["typescript", "@types/*", "vitest", "@vitest/*"]
 }

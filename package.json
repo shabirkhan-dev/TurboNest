@@ -11,13 +11,18 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "format": "turbo run format",
+    "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug",
-    "test:e2e:report": "playwright show-report",
+    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "turbo run test:e2e",
+    "test:e2e:ui": "turbo run test:e2e:ui",
+    "test:e2e:debug": "turbo run test:e2e:debug",
+    "test:e2e:report": "turbo run test:e2e:report",
+    "storybook": "turbo run storybook",
+    "build-storybook": "turbo run build-storybook",
     "clean": "turbo run clean && rm -rf node_modules",
-    "typecheck": "tsc --noEmit --pretty",
     "prepare": "lefthook install",
     "commit": "cz",
     "deps:update": "bun update --latest",
@@ -91,5 +96,15 @@
     "name": "Shabir Khan",
     "email": "shabirkhan.dev@gamil.com",
     "url": "https://shabirkhan.dev"
+  },
+  "mcpServers": {
+    "ultracite": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://www.ultracite.ai/api/mcp/mcp"
+      ]
+    }
   }
 }

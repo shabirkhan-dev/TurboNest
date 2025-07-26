@@ -1,0 +1,36 @@
+{
+  "name": "express-starter-kit",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/express": "5",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.8"
+  },
+  "scripts": {
+    "dev": "bun run --hot src/server.ts",
+    "start": "bun run src/server.ts",
+    "build": "bun build src/server.ts --outdir dist --target bun",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "lint:fix": "biome check --apply .",
+    "typecheck": "tsc --noEmit --pretty",
+    "clean": "rimraf dist node_modules"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@types/cors": "^2.8.17",
+    "chalk": "^5.3.0",
+    "cors": "^2.8.5",
+    "express": "5",
+    "mongoose": "^8.8.3",
+    "zod": "^3.23.8"
+  }
+}

@@ -12,6 +12,7 @@
 - 🚀 **Express.js** – robust backend API with Bun runtime
 - 🐘 **PostgreSQL** – reliable database with Docker
 - 🐳 **Docker** – full containerization with multi-stage builds
+- 📚 **Storybook** – component development and documentation
 - 🔒 **Lefthook** – commit linting, typechecks, and more via Git hooks
 - 🧪 **TypeScript strict mode** – shared config across apps
 - 🧰 **Commitlint + Commitizen** – clean commit history
@@ -91,10 +92,14 @@ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres123 postgres:16-alpine
 | `bun run dev` | Start all apps in dev mode |
 | `bun run build` | Build all apps and packages |
 | `bun run lint` | Run Biome linting across the monorepo |
-| `bun run test` | Run all tests (unit + e2e) |
+| `bun run test` | Run all unit tests |
+| `bun run test:watch` | Run tests in watch mode |
+| `bun run test:coverage` | Run tests with coverage reports |
 | `bun run test:e2e` | Run Playwright e2e tests |
 | `bun run test:e2e:ui` | Run tests with Playwright UI |
 | `bun run test:e2e:debug` | Run tests in debug mode |
+| `bun run storybook` | Start Storybook development server |
+| `bun run build-storybook` | Build Storybook for production |
 | `bun run typecheck` | Type-check only (no emit) |
 | `bun run commit` | Commit using commitizen prompts |
 | `bun run deps:update` | Update all dependencies |
@@ -170,14 +175,24 @@ bun run test:e2e:report
 
 ### **Test Structure**
 
+Tests are organized within each application for better maintainability:
+
 ```
-tests/
-├── example.spec.ts          # Basic example tests
-├── drive-connect.spec.ts    # Drive Connect specific tests
-└── README.md               # Detailed testing guide
+apps/
+├── front-end/
+│   ├── src/test/           # Unit tests with Vitest
+│   │   ├── setup.ts        # Test setup and globals
+│   │   └── example.test.tsx # Component tests
+│   └── tests/              # E2E tests with Playwright
+│       ├── example.spec.ts
+│       └── drive-connect.spec.ts
+└── backend/
+    └── src/test/           # API tests with Vitest + Supertest
+        ├── setup.ts        # Test setup and mocks
+        └── auth.test.ts    # Authentication tests
 ```
 
-See [`tests/README.md`](./tests/README.md) for comprehensive testing documentation.
+Each app has its own testing configuration and can be run independently or as part of the monorepo.
 
 ---
 

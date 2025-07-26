@@ -14,19 +14,45 @@
       ]
     },
     "test": {
-      "outputs": ["coverage/**", "test-results/**", "playwright-report/**"],
+      "outputs": ["coverage/**", "test-results/**"],
+      "dependsOn": ["^build"]
+    },
+    "test:watch": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:coverage": {
+      "outputs": ["coverage/**"],
+      "dependsOn": ["^build"]
+    },
+    "test:e2e": {
+      "outputs": ["test-results/**", "playwright-report/**"],
+      "dependsOn": ["^build"]
+    },
+    "storybook": {
+      "cache": false,
+      "persistent": true
+    },
+    "build-storybook": {
+      "outputs": ["storybook-static/**"],
       "dependsOn": ["^build"]
     },
     "lint": {
       "dependsOn": ["^build", "^lint"]
     },
-    "check-types": {
-      "dependsOn": ["^build", "^check-types"]
+    "typecheck": {
+      "dependsOn": ["^build", "^typecheck"]
     },
     "dev": {
       "dependsOn": ["^build"],
       "cache": false,
       "persistent": true
+    },
+    "clean": {
+      "cache": false
+    },
+    "format": {
+      "cache": false
     }
   }
 }

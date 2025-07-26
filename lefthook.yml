@@ -15,11 +15,11 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      run: bun lint
+      run: bun run lint
     typecheck:
-      run: bun tsc --noEmit
+      run: bun run typecheck
 
 commit-msg:
   commands:
     commitlint:
-      run: npx commitlint --edit {1}
+      run: bunx commitlint --edit {1}

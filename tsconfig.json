@@ -1,20 +1,15 @@
 {
   "compilerOptions": {
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
     "allowJs": true,
     "paths": {
-      "@/*": [
-        "./apps/*"
-      ],
-      "skipLibCheck": [
-        "./tsconfig.json"
-      ]
+      "@/*": ["./apps/*"],
+      "@backend/*": ["./apps/backend/src/*"],
+      "@frontend/*": ["./apps/front-end/src/*"],
+      "@shared/*": ["./packages/*"]
     },
     "baseUrl": ".",
     "moduleResolution": "bundler",
@@ -29,5 +24,7 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "strictNullChecks": true
-  }
+  },
+  "include": ["apps/**/*", "packages/**/*"],
+  "exclude": ["node_modules", "dist", "build", ".next", "coverage"]
 }

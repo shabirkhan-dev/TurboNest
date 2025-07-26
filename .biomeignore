@@ -1,0 +1,71 @@
+# Configuration files
+package.json
+package-lock.json
+bun.lock
+bun.lockb
+tsconfig.json
+next.config.*
+tailwind.config.*
+postcss.config.*
+components.json
+playwright.config.*
+vitest.config.*
+turbo.json
+lefthook.yml
+renovate.json
+commitlint.config.js
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Assets and media files
+**/*.ico
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.svg
+**/*.webp
+**/*.avif
+**/*.mp3
+**/*.mp4
+**/*.pdf
+
+# Build and distribution
+dist/
+build/
+.next/
+coverage/
+node_modules/
+
+# Test directories  
+tests/
+tests-examples/
+
+# Public assets
+public/
+
+# Documentation
+*.md
+*.mdx
+
+# License and legal
+LICENSE
+COPYING
+
+# Git files
+.gitignore
+.gitattributes
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Database
+*.sql
+*.db
+*.sqlite 

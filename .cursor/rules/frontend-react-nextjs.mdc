@@ -1,0 +1,588 @@
+# Frontend React 19 & Next.js 15 Style Guide
+
+Expert-level style guide for JavaScript, React 19, Node.js, Next.js 15 App Router, Zustand, Shadcn UI, Radix UI, Tailwind, and Stylus development with cutting-edge features and best practices.
+
+## Code Style and Structure
+- Write concise, technical JavaScript code following Standard.js rules.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content.
+- Leverage React 19 Compiler for automatic optimization.
+
+## Standard.js Rules
+- Use 2 space indentation.
+- Use single quotes for strings except to avoid escaping.
+- No semicolons (unless required to disambiguate statements).
+- No unused variables.
+- Add a space after keywords.
+- Add a space before a function declaration's parentheses.
+- Always use === instead of ==.
+- Infix operators must be spaced.
+- Commas should have a space after them.
+- Keep else statements on the same line as their curly braces.
+- For multi-line if statements, use curly braces.
+- Always handle the err function parameter.
+- Use camelcase for variables and functions.
+- Use PascalCase for constructors and React components.
+
+## Naming Conventions
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
+- Use descriptive names for Server Actions and Server Components.
+
+## React 19 Best Practices
+
+### Core Features
+- Use functional components with prop-types for type checking.
+- Use the "function" keyword for component definitions.
+- Leverage React 19 Compiler for automatic optimization (no manual memoization needed in most cases).
+- Use React 19 Actions for form handling and server interactions.
+
+### Modern Hooks (React 19)
+- **useActionState**: For managing form state with server actions
+- **useOptimistic**: For optimistic UI updates
+- **use()**: For reading promises and context values
+- **useCallback**: Only when React Compiler doesn't optimize automatically
+- **useMemo**: Only for expensive computations when React Compiler doesn't handle
+- **useState**, **useEffect**, **useContext**, **useReducer**: Use sparingly, prefer Server Components
+
+### React 19 Actions
+```javascript
+// Server Action example
+async function updateUser(formData) {
+  'use server'
+  // Server-side logic
+}
+
+// Client-side with useActionState
+function UserForm() {
+  const [state, action, isPending] = useActionState(updateUser, null)
+  
+  return (
+    <form action={action}>
+      <input name="name" required />
+      <button disabled={isPending}>
+        {isPending ? 'Updating...' : 'Update'}
+      </button>
+    </form>
+  )
+}
+```
+
+### Optimistic Updates
+```javascript
+function TodoList() {
+  const [optimisticTodos, addOptimistic] = useOptimistic(todos, (state, newTodo) => [
+    ...state,
+    { ...newTodo, id: Math.random() }
+  ])
+  
+  async function addTodo(formData) {
+    const title = formData.get('title')
+    addOptimistic({ title, completed: false })
+    await createTodo(title)
+  }
+  
+  return (
+    <form action={addTodo}>
+      {optimisticTodos.map(todo => <div key={todo.id}>{todo.title}</div>)}
+    </form>
+  )
+}
+```
+
+### Promise Handling with use()
+```javascript
+function UserProfile({ userPromise }) {
+  const user = use(userPromise) // React 19 feature
+  return <div>{user.name}</div>
+}
+
+function App() {
+  const userPromise = fetchUser()
+  return (
+    <Suspense fallback={<Loading />}>
+      <UserProfile userPromise={userPromise} />
+    </Suspense>
+  )
+}
+```
+
+## Next.js 15 Best Practices
+
+### App Router Enhancements
+- Use Server Components by default
+- Implement streaming with Suspense boundaries
+- Leverage partial prerendering for optimal performance
+- Use the enhanced caching strategies
+
+### Server Actions (Enhanced in Next.js 15)
+```javascript
+// app/actions.js
+'use server'
+
+export async function createUser(formData) {
+  const result = await db.user.create({
+    data: {
+      name: formData.get('name'),
+      email: formData.get('email')
+    }
+  })
+  
+  revalidatePath('/users')
+  return { success: true, user: result }
+}
+```
+
+### Enhanced Routing
+- Use TypeScript-first routing with better type safety
+- Implement parallel routes for complex layouts
+- Use intercepting routes for modals and overlays
+- Leverage route groups for organization
+
+### Metadata API (Enhanced)
+```javascript
+// app/layout.js
+export const metadata = {
+  title: {
+    template: '%s | My App',
+    default: 'My App'
+  },
+  description: 'Enhanced with Next.js 15',
+  openGraph: {
+    title: 'My App',
+    description: 'Built with Next.js 15',
+    images: ['/og-image.jpg']
+  }
+}
+```
+
+## State Management
+
+### Zustand Best Practices
+```javascript
+// stores/user-store.js
+import { create } from 'zustand'
+import { subscribeWithSelector } from 'zustand/middleware'
+
+export const useUserStore = create(
+  subscribeWithSelector((set, get) => ({
+    user: null,
+    setUser: (user) => set({ user }),
+    logout: () => set({ user: null }),
+    
+    // Computed values
+    get isAuthenticated() {
+      return !!get().user
+    }
+  }))
+)
+```
+
+### State Lifting and Context
+- Use Zustand for global state management
+- Lift state up when needed to share state between components
+- Use React 19 context improvements for intermediate state sharing
+- Prefer Server Components for data fetching
+
+## UI and Styling
+
+### Shadcn UI and Radix UI
+- Use Shadcn UI and Radix UI for component foundations
+- Customize components using CSS variables and Tailwind
+- Implement proper accessibility with built-in ARIA support
+
+### Tailwind CSS Integration
+```javascript
+// tailwind.config.ts
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {
+      colors: {
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+      }
+    },
+  },
+  plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
+}
+export default config
+```
+
+### Stylus Module Integration
+```stylus
+// components/Button/Button.module.styl
+.button
+  @apply inline-flex items-center justify-center rounded-md text-sm font-medium
+  transition-colors duration-200
+  
+  &.primary
+    background linear-gradient(135deg, #667eea 0%, #764ba2 100%)
+    color white
+    
+    &:hover
+      transform translateY(-1px)
+      box-shadow 0 4px 12px rgba(102, 126, 234, 0.4)
+  
+  &.secondary
+    @apply border border-gray-300 bg-white text-gray-700
+    
+    &:hover
+      @apply bg-gray-50
+
+.loading
+  animation spin 1s linear infinite
+  
+@keyframes spin
+  from
+    transform rotate(0deg)
+  to
+    transform rotate(360deg)
+```
+
+## Performance Optimization
+
+### React 19 Compiler Integration
+- Enable React Compiler for automatic optimization
+- Remove manual React.memo, useCallback, useMemo where compiler handles it
+- Focus on data fetching and server-side optimizations
+
+### Next.js 15 Performance Features
+```javascript
+// next.config.ts
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  experimental: {
+    ppr: true, // Partial Prerendering
+    reactCompiler: true, // React 19 Compiler
+    after: true, // Enhanced after hook
+  },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+  }
+}
+
+export default nextConfig
+```
+
+### Streaming and Suspense
+```javascript
+// app/dashboard/page.js
+import { Suspense } from 'react'
+
+export default function Dashboard() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <Suspense fallback={<UserSkeleton />}>
+        <UserStats />
+      </Suspense>
+      <Suspense fallback={<ChartSkeleton />}>
+        <AnalyticsChart />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+## Forms and Validation with React 19
+
+### Server Actions with Validation
+```javascript
+// app/actions/user.js
+'use server'
+
+import { z } from 'zod'
+
+const userSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  age: z.number().min(18)
+})
+
+export async function createUser(prevState, formData) {
+  const result = userSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    age: Number(formData.get('age'))
+  })
+  
+  if (!result.success) {
+    return {
+      error: 'Validation failed',
+      issues: result.error.issues
+    }
+  }
+  
+  // Save user
+  const user = await db.user.create({ data: result.data })
+  return { success: true, user }
+}
+```
+
+### Client-Side Form Handling
+```javascript
+// components/UserForm.jsx
+'use client'
+
+import { useActionState } from 'react'
+import { createUser } from '@/app/actions/user'
+
+export function UserForm() {
+  const [state, action, isPending] = useActionState(createUser, null)
+  
+  return (
+    <form action={action}>
+      <input name="name" required />
+      {state?.issues?.find(i => i.path[0] === 'name') && (
+        <p className="text-red-500">Invalid name</p>
+      )}
+      
+      <input name="email" type="email" required />
+      {state?.issues?.find(i => i.path[0] === 'email') && (
+        <p className="text-red-500">Invalid email</p>
+      )}
+      
+      <button disabled={isPending}>
+        {isPending ? 'Creating...' : 'Create User'}
+      </button>
+      
+      {state?.success && (
+        <p className="text-green-500">User created successfully!</p>
+      )}
+    </form>
+  )
+}
+```
+
+## Error Handling and Validation
+
+### Server Component Error Handling
+```javascript
+// app/users/page.js
+export default async function UsersPage() {
+  try {
+    const users = await fetchUsers()
+    
+    if (!users?.length) {
+      return <EmptyState message="No users found" />
+    }
+    
+    return <UserList users={users} />
+  } catch (error) {
+    console.error('Failed to fetch users:', error)
+    return <ErrorState message="Failed to load users" />
+  }
+}
+```
+
+### Error Boundaries (Enhanced)
+```javascript
+// components/ErrorBoundary.jsx
+'use client'
+
+import { Component } from 'react'
+
+export class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+  
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+  
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo)
+    // Send to error reporting service
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback || (
+        <div className="p-4 border border-red-200 rounded">
+          <h2>Something went wrong</h2>
+          <button onClick={() => this.setState({ hasError: false, error: null })}>
+            Try again
+          </button>
+        </div>
+      )
+    }
+    
+    return this.props.children
+  }
+}
+```
+
+## Testing with Modern Stack
+
+### Component Testing
+```javascript
+// __tests__/UserForm.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { UserForm } from '@/components/UserForm'
+
+describe('UserForm', () => {
+  it('handles form submission with server action', async () => {
+    render(<UserForm />)
+    
+    fireEvent.change(screen.getByLabelText(/name/i), {
+      target: { value: 'John Doe' }
+    })
+    
+    fireEvent.click(screen.getByRole('button', { name: /create/i }))
+    
+    await waitFor(() => {
+      expect(screen.getByText(/creating/i)).toBeInTheDocument()
+    })
+  })
+})
+```
+
+## Accessibility (a11y) Enhanced
+
+### Server Component Accessibility
+```javascript
+// components/AccessibleButton.jsx
+export function AccessibleButton({ 
+  children, 
+  variant = 'primary',
+  disabled = false,
+  onClick,
+  type = 'button',
+  ...props 
+}) {
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        'focus:outline-none focus:ring-2 focus:ring-offset-2',
+        variant === 'primary' && 'bg-blue-600 text-white focus:ring-blue-500',
+        variant === 'secondary' && 'bg-gray-200 text-gray-900 focus:ring-gray-500',
+        disabled && 'opacity-50 cursor-not-allowed'
+      )}
+      aria-disabled={disabled}
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+## Key Next.js 15 & React 19 Conventions
+
+### Enhanced URL State Management
+```javascript
+// hooks/useUrlState.js
+'use client'
+
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
+import { useCallback } from 'react'
+
+export function useUrlState(key, defaultValue = '') {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
+  
+  const value = searchParams.get(key) ?? defaultValue
+  
+  const setValue = useCallback((newValue) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (newValue) {
+      params.set(key, newValue)
+    } else {
+      params.delete(key)
+    }
+    router.push(`${pathname}?${params.toString()}`)
+  }, [key, pathname, router, searchParams])
+  
+  return [value, setValue]
+}
+```
+
+### Server Component Data Fetching
+```javascript
+// app/posts/page.js
+export default async function PostsPage({ searchParams }) {
+  const { page = '1', search = '' } = searchParams
+  
+  const posts = await fetchPosts({
+    page: parseInt(page),
+    search,
+    take: 10
+  })
+  
+  return (
+    <div>
+      <SearchForm defaultValue={search} />
+      <PostList posts={posts} />
+      <Pagination currentPage={parseInt(page)} />
+    </div>
+  )
+}
+```
+
+### TypeScript Integration
+```typescript
+// types/global.d.ts
+export interface User {
+  id: string
+  name: string
+  email: string
+  createdAt: Date
+}
+
+export interface ApiResponse<T> {
+  data: T
+  success: boolean
+  error?: string
+}
+
+// Server Action types
+export type ActionResult<T> = {
+  success: true
+  data: T
+} | {
+  success: false
+  error: string
+}
+```
+
+## File Structure Best Practices
+
+```
+src/
+├── app/                    # Next.js 15 App Router
+│   ├── (auth)/            # Route groups
+│   ├── api/               # API routes
+│   ├── globals.css        # Global styles
+│   └── layout.tsx         # Root layout
+├── components/            # Reusable components
+│   ├── ui/               # Shadcn UI components
+│   └── forms/            # Form components
+├── lib/                  # Utilities and configs
+├── stores/               # Zustand stores
+├── hooks/                # Custom hooks
+├── actions/              # Server actions
+└── types/                # TypeScript definitions
+```
+description:
+globs:
+alwaysApply: false
+---

@@ -7,7 +7,11 @@ This is a monorepo project built with Turbo containing:
 ### Frontend (`apps/front-end/`)
 - **Framework**: Next.js 15 with TypeScript
 - **Styling**: Tailwind CSS with Radix UI components
-- **Testing**: Vitest + Playwright for E2E
+- **Testing**: 
+  - Vitest for unit/integration tests
+  - Playwright for E2E tests (configured within app)
+  - Coverage reporting with V8
+- **Storybook**: Component development and documentation (port 6006)
 - **Package Manager**: Bun
 - **Key Features**: 
   - React 19
@@ -19,6 +23,10 @@ This is a monorepo project built with Turbo containing:
 - **Framework**: Express.js with TypeScript
 - **Runtime**: Bun
 - **Database**: Currently configured for MongoDB (Mongoose), but Docker setup uses PostgreSQL
+- **Testing**:
+  - Vitest for unit/integration tests
+  - Supertest for API testing
+  - Coverage reporting with V8
 - **Key Features**:
   - Authentication module with JWT
   - User management
@@ -70,4 +78,14 @@ The backend currently uses Mongoose (MongoDB) but Docker setup provides PostgreS
 - `turbo run dev`: Start all apps in development
 - `turbo run build`: Build all apps
 - `turbo run lint`: Lint all code
-- `turbo run test`: Run all tests
+- `turbo run test`: Run all unit tests
+- `turbo run test:coverage`: Run tests with coverage
+- `turbo run test:e2e`: Run E2E tests (frontend only)
+- `turbo run storybook`: Start Storybook development server
+- `turbo run build-storybook`: Build Storybook for production
+
+### Testing Structure
+Each app contains its own testing setup:
+- **Frontend**: `apps/front-end/src/test/` + `apps/front-end/tests/` for E2E
+- **Backend**: `apps/backend/src/test/` for unit tests
+- Tests are co-located with their respective applications for better organization
