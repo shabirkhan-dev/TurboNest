@@ -85,7 +85,11 @@
   },
   "packageManager": "bun@1.2.10",
   "trustedDependencies": [
-    "core-js"
+    "@tailwindcss/oxide",
+    "core-js",
+    "core-js-pure",
+    "next-ts-template",
+    "oxc-resolver"
   ],
   "engines": {
     "node": ">=18.0.0",
