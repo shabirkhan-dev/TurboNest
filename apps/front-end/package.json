@@ -21,8 +21,6 @@
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:report": "playwright show-report",
-		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build",
 		"deps:update": "bun update --latest",
 		"deps:check": "bunx npm-check-updates"
 	},
@@ -39,16 +37,12 @@
 		"zod": "4.1.11"
 	},
 	"devDependencies": {
-		"@chromatic-com/storybook": "4.1.1",
 		"@commitlint/cli": "20.1.0",
 		"@commitlint/config-conventional": "20.0.0",
 		"@commitlint/cz-commitlint": "20.1.0",
 		"@playwright/test": "1.55.1",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/git": "10.0.1",
-		"@storybook/addon-a11y": "9.1.10",
-		"@storybook/addon-docs": "9.1.10",
-		"@storybook/addon-vitest": "9.1.10",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/jest-dom": "6.9.1",
 		"@testing-library/react": "16.3.0",
@@ -63,11 +57,9 @@
 		"lefthook": "1.13.6",
 		"rimraf": "6.0.1",
 		"semantic-release": "24.2.9",
-		"storybook": "9.1.10",
 		"typescript": "5.9.3",
 		"vite-tsconfig-paths": "5.1.4",
 		"vitest": "3.2.4",
-		"@storybook/nextjs-vite": "9.1.10",
 		"@vitest/browser": "3.2.4",
 		"playwright": "1.55.1",
 		"@vitest/coverage-v8": "3.2.4"
