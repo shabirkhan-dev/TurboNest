@@ -1,18 +1,9 @@
 {
-  "name": "@vendora/tsconfig",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "typescript": "^5.8.3"
-  },
-  "files": [
-    "base.json",
-    "next.json",
-    "backend.json"
-  ],
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "@rabtx/tsconfig",
+	"version": "0.0.0",
+	"private": true,
+	"license": "PROPRIETARY",
+	"publishConfig": {
+		"access": "public"
+	}
 }

@@ -14,6 +14,22 @@ const nextConfig: NextConfig = {
 			};
 		}
 
+		// Handle TypeScript files from workspace packages
+		config.module.rules.push({
+			test: /\.tsx?$/,
+			include: [/node_modules\/@rabtx/],
+			exclude: [/node_modules\/@rabtx\/node_modules/],
+			use: [
+				{
+					loader: "babel-loader",
+					options: {
+						presets: ["next/babel"],
+						plugins: [],
+					},
+				},
+			],
+		});
+
 		return config;
 	},
 	// Ensure TypeScript works correctly
