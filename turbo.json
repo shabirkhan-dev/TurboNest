@@ -1,58 +1,56 @@
 {
-  "$schema": "https://turbo.build/schema.json",
-  "ui": "tui",
-  "tasks": {
-    "build": {
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "dependsOn": ["^build"],
-      "outputs": [
-        "build/**",
-        ".vercel/**",
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**"
-      ]
-    },
-    "test": {
-      "outputs": ["coverage/**", "test-results/**"],
-      "dependsOn": ["^build"]
-    },
-    "test:watch": {
-      "cache": false,
-      "persistent": true
-    },
-    "test:coverage": {
-      "outputs": ["coverage/**"],
-      "dependsOn": ["^build"]
-    },
-    "test:e2e": {
-      "outputs": ["test-results/**", "playwright-report/**"],
-      "dependsOn": ["^build"]
-    },
-    "storybook": {
-      "cache": false,
-      "persistent": true
-    },
-    "build-storybook": {
-      "outputs": ["storybook-static/**"],
-      "dependsOn": ["^build"]
-    },
-    "lint": {
-      "dependsOn": ["^build", "^lint"]
-    },
-    "typecheck": {
-      "dependsOn": ["^build", "^typecheck"]
-    },
-    "dev": {
-      "dependsOn": ["^build"],
-      "cache": false,
-      "persistent": true
-    },
-    "clean": {
-      "cache": false
-    },
-    "format": {
-      "cache": false
-    }
-  }
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
+	"tasks": {
+		"build": {
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"dependsOn": ["^build"],
+			"outputs": ["build/**", ".vercel/**", "dist/**", ".next/**", "!.next/cache/**"]
+		},
+		"test": {
+			"inputs": ["$TURBO_DEFAULT$"],
+			"dependsOn": ["^test", "@rabtx/vitest-config#build"],
+			"outputs": ["coverage.json"]
+		},
+		"transit": {
+			"dependsOn": ["^transit"]
+		},
+		"test:watch": {
+			"cache": false,
+			"persistent": true
+		},
+		"test:coverage": {
+			"outputs": ["coverage/**"],
+			"dependsOn": ["^build"]
+		},
+		"test:e2e": {
+			"outputs": ["test-results/**", "playwright-report/**"],
+			"dependsOn": ["^build"]
+		},
+		"storybook": {
+			"cache": false,
+			"persistent": true
+		},
+		"build-storybook": {
+			"outputs": ["storybook-static/**"],
+			"dependsOn": ["^build"]
+		},
+		"lint": {
+			"dependsOn": ["^build", "^lint"]
+		},
+		"typecheck": {
+			"dependsOn": ["^build", "^typecheck"]
+		},
+		"dev": {
+			"dependsOn": ["^build"],
+			"cache": false,
+			"persistent": true
+		},
+		"clean": {
+			"cache": false
+		},
+		"format": {
+			"cache": false
+		}
+	}
 }
