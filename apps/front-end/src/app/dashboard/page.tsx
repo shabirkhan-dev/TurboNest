@@ -1,10 +1,9 @@
 import { SidebarInset, SidebarProvider } from "@rabtx/ui/components/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
-import { DataTable } from "@/components/data-table";
-import { SectionCards } from "@/components/section-cards";
-import { SiteHeader } from "@/components/site-header";
-
+import { AppSidebar } from "@/features/dashboard/components/app-sidebar";
+import { ChartAreaInteractive } from "@/features/dashboard/components/chart-area-interactive";
+import { DataTable } from "@/features/dashboard/components/data-table";
+import { SectionCards } from "@/features/dashboard/components/section-cards";
+import { SiteHeader } from "@/shared/components";
 import data from "./data.json";
 
 export default function Page() {

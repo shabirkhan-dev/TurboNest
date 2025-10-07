@@ -1,0 +1,315 @@
+---
+title: Frontend Getting Started
+description: Learn how to set up and develop the Rabtx frontend application
+---
+
+# Frontend Getting Started
+
+The Rabtx frontend is built with Next.js 15, TypeScript, and Tailwind CSS. It features a modern UI built with shadcn/ui components and follows a feature-based architecture.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- Node.js 18+ or Bun 1.2+
+- Basic knowledge of React and TypeScript
+- Understanding of Next.js concepts
+
+## Project Structure
+
+The frontend follows a feature-based architecture:
+
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+
+<Files>
+  <Folder name="apps/front-end" defaultOpen>
+    <Folder name="src" defaultOpen>
+      <Folder name="app" defaultOpen>
+        <File name="layout.tsx" />
+        <File name="page.tsx" />
+        <File name="global.css" />
+        <Folder name="dashboard">
+          <File name="page.tsx" />
+          <File name="data.json" />
+        </Folder>
+        <Folder name="login">
+          <File name="page.tsx" />
+        </Folder>
+        <Folder name="signup">
+          <File name="page.tsx" />
+        </Folder>
+        <Folder name="otp">
+          <File name="page.tsx" />
+        </Folder>
+      </Folder>
+      <Folder name="features" defaultOpen>
+        <Folder name="auth">
+          <Folder name="components">
+            <File name="login-form.tsx" />
+            <File name="signup-form.tsx" />
+            <File name="otp-form.tsx" />
+          </Folder>
+          <Folder name="hooks">
+            <File name="use-auth.ts" />
+          </Folder>
+          <Folder name="services">
+            <File name="auth-service.ts" />
+          </Folder>
+          <Folder name="types">
+            <File name="auth.types.ts" />
+          </Folder>
+          <Folder name="constants">
+            <File name="auth.constants.ts" />
+          </Folder>
+        </Folder>
+        <Folder name="dashboard">
+          <Folder name="components">
+            <File name="dashboard-header.tsx" />
+            <File name="stats-cards.tsx" />
+          </Folder>
+          <Folder name="hooks">
+            <File name="use-dashboard.ts" />
+          </Folder>
+        </Folder>
+        <Folder name="landing">
+          <Folder name="components">
+            <File name="hero-section.tsx" />
+            <File name="feature-card.tsx" />
+            <File name="testimonial-card.tsx" />
+          </Folder>
+        </Folder>
+      </Folder>
+      <Folder name="shared">
+        <Folder name="components">
+          <File name="ui-button.tsx" />
+          <File name="ui-card.tsx" />
+        </Folder>
+        <Folder name="hooks">
+          <File name="use-mobile.ts" />
+        </Folder>
+        <Folder name="services">
+          <File name="api-client.ts" />
+        </Folder>
+        <Folder name="types">
+          <File name="common.types.ts" />
+        </Folder>
+        <Folder name="constants">
+          <File name="app.constants.ts" />
+        </Folder>
+      </Folder>
+    </Folder>
+    <Folder name="tests">
+      <Folder name="unit">
+        <Folder name="features">
+          <File name="auth.test.tsx" />
+          <File name="dashboard.test.tsx" />
+        </Folder>
+        <Folder name="shared">
+          <File name="hooks.test.tsx" />
+        </Folder>
+      </Folder>
+      <Folder name="e2e">
+        <File name="auth-flow.spec.ts" />
+        <File name="dashboard.spec.ts" />
+        <File name="landing-page.spec.ts" />
+      </Folder>
+      <Folder name="utils">
+        <File name="test-utils.tsx" />
+        <File name="test-setup.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="public">
+      <File name="favicon.ico" />
+      <File name="next.svg" />
+    </Folder>
+    <File name="package.json" />
+    <File name="next.config.ts" />
+    <File name="tsconfig.json" />
+  </Folder>
+</Files>
+
+## Key Technologies
+
+### Next.js 15
+- **App Router**: Modern routing with the app directory
+- **Server Components**: Optimized rendering with server-side components
+- **TypeScript**: Full type safety throughout the application
+
+### UI Components
+- **shadcn/ui**: High-quality, accessible components
+- **Tailwind CSS**: Utility-first CSS framework
+- **Lucide React**: Beautiful, customizable icons
+- **Framer Motion**: Smooth animations and transitions
+
+### State Management
+- **React Hooks**: Built-in state management
+- **Context API**: Global state management
+- **Local Storage**: Persistent data storage
+
+## Development Setup
+
+1. **Install dependencies**
+   ```bash
+   cd apps/front-end
+   bun install
+   ```
+
+2. **Start development server**
+   ```bash
+   bun dev
+   ```
+
+3. **Open your browser**
+   Navigate to `http://localhost:3000`
+
+## Available Scripts
+
+- `bun dev` - Start development server
+- `bun build` - Build for production
+- `bun start` - Start production server
+- `bun lint` - Run ESLint
+- `bun test` - Run unit tests
+- `bun test:e2e` - Run E2E tests
+- `bun test:coverage` - Run tests with coverage
+
+## Environment Variables
+
+Create a `.env.local` file in the frontend directory:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+NEXT_PUBLIC_APP_NAME=Rabtx
+NEXT_PUBLIC_APP_VERSION=1.0.0
+```
+
+## Component Development
+
+### Creating Components
+
+Components are organized by feature. To create a new component:
+
+1. **Choose the appropriate feature directory**
+2. **Create the component file**
+3. **Export from the feature's index file**
+
+Example:
+```typescript
+// src/features/auth/components/login-form.tsx
+export function LoginForm() {
+  return (
+    <form>
+      {/* Form content */}
+    </form>
+  );
+}
+
+// src/features/auth/components/index.ts
+export { LoginForm } from './login-form';
+```
+
+### Using shadcn/ui Components
+
+We use shadcn/ui for our component library. To add a new component:
+
+```bash
+npx shadcn@latest add button
+```
+
+### Styling Guidelines
+
+- Use Tailwind CSS classes for styling
+- Follow the design system established by shadcn/ui
+- Use CSS variables for theme customization
+- Maintain responsive design principles
+
+## Testing
+
+### Unit Tests
+Unit tests are written with Vitest and React Testing Library:
+
+```typescript
+import { render, screen } from '@testing-library/react';
+import { LoginForm } from '@/features/auth/components';
+
+test('renders login form', () => {
+  render(<LoginForm />);
+  expect(screen.getByText('Login')).toBeInTheDocument();
+});
+```
+
+### E2E Tests
+E2E tests are written with Playwright:
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('user can login', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('[data-testid="email"]', 'test@example.com');
+  await page.fill('[data-testid="password"]', 'password');
+  await page.click('[data-testid="submit"]');
+  await expect(page).toHaveURL('/dashboard');
+});
+```
+
+## Performance Optimization
+
+### Image Optimization
+Use Next.js Image component for optimized images:
+
+```typescript
+import Image from 'next/image';
+
+<Image
+  src="/hero-image.jpg"
+  alt="Hero image"
+  width={800}
+  height={600}
+  priority
+/>
+```
+
+### Code Splitting
+Use dynamic imports for code splitting:
+
+```typescript
+import dynamic from 'next/dynamic';
+
+const HeavyComponent = dynamic(() => import('./HeavyComponent'), {
+  loading: () => <p>Loading...</p>,
+});
+```
+
+### SEO Optimization
+Use Next.js metadata API for SEO:
+
+```typescript
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Page Title',
+  description: 'Page description',
+};
+```
+
+## Deployment
+
+The frontend is configured for deployment on Vercel, Netlify, or any static hosting service.
+
+### Build Process
+```bash
+bun run build
+```
+
+### Docker Deployment
+```bash
+docker build -t drive-connect-frontend .
+docker run -p 3000:3000 drive-connect-frontend
+```
+
+## Next Steps
+
+- [Authentication Flow](/docs/frontend/authentication) - Learn about the auth system
+- [Dashboard Development](/docs/frontend/dashboard) - Build dashboard features
+- [Component Library](/docs/frontend/components) - Explore available components
+- [Testing Guide](/docs/testing/frontend) - Comprehensive testing guide

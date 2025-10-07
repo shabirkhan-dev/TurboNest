@@ -1,0 +1,447 @@
+---
+title: Backend Getting Started
+description: Learn how to set up and develop the Rabtx backend API
+---
+
+# Backend Getting Started
+
+The Rabtx backend is built with Express.js, TypeScript, and MongoDB. It provides a robust RESTful API with authentication, validation, and error handling.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- Node.js 18+ or Bun 1.2+
+- MongoDB database
+- Basic knowledge of Express.js and TypeScript
+- Understanding of RESTful API concepts
+
+## Project Structure
+
+The backend follows a modular architecture:
+
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+
+<Files>
+  <Folder name="apps/backend" defaultOpen>
+    <Folder name="src" defaultOpen>
+      <File name="app.ts" />
+      <File name="server.ts" />
+      <Folder name="modules" defaultOpen>
+        <Folder name="auth">
+          <File name="auth.controller.ts" />
+          <File name="auth.service.ts" />
+          <File name="auth.routes.ts" />
+          <File name="auth.middleware.ts" />
+          <File name="auth.types.ts" />
+          <File name="auth.validator.ts" />
+        </Folder>
+      </Folder>
+      <Folder name="models">
+        <File name="user.ts" />
+        <File name="session.ts" />
+        <File name="verification.ts" />
+      </Folder>
+      <Folder name="configs">
+        <File name="env-config.ts" />
+        <File name="http-config.ts" />
+      </Folder>
+      <Folder name="connections">
+        <File name="db.ts" />
+      </Folder>
+      <Folder name="errors">
+        <File name="app-error.ts" />
+        <File name="catch-errors.ts" />
+        <File name="formater.ts" />
+      </Folder>
+      <Folder name="validators">
+        <File name="request.ts" />
+      </Folder>
+      <Folder name="utils">
+        <File name="date-time.ts" />
+        <File name="logger.ts" />
+      </Folder>
+      <Folder name="test">
+        <File name="auth.test.ts" />
+        <File name="setup.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="docker">
+      <File name="docker-compose.yml" />
+    </Folder>
+    <File name="Dockerfile" />
+    <File name="package.json" />
+    <File name="tsconfig.json" />
+  </Folder>
+</Files>
+
+## Key Technologies
+
+### Express.js
+- **RESTful API**: Clean, predictable API endpoints
+- **Middleware**: Request processing pipeline
+- **Routing**: Organized route handling
+
+### Database
+- **MongoDB**: NoSQL database for flexible data storage
+- **Mongoose**: MongoDB object modeling for Node.js
+- **Validation**: Schema-based data validation
+
+### Authentication
+- **JWT**: JSON Web Tokens for stateless authentication
+- **Refresh Tokens**: Secure token refresh mechanism
+- **OTP**: One-time password verification
+
+### Validation & Error Handling
+- **Zod**: TypeScript-first schema validation
+- **Custom Errors**: Structured error handling
+- **Logging**: Comprehensive request/error logging
+
+## Development Setup
+
+1. **Install dependencies**
+   ```bash
+   cd apps/backend
+   bun install
+   ```
+
+2. **Set up environment variables**
+   Create a `.env` file:
+   ```bash
+   PORT=8000
+   NODE_ENV=development
+   MONGODB_URI=mongodb://localhost:27017/drive_connect
+   JWT_SECRET=your-jwt-secret
+   JWT_REFRESH_SECRET=your-refresh-secret
+   JWT_EXPIRES_IN=15m
+   JWT_REFRESH_EXPIRES_IN=7d
+   ```
+
+3. **Start MongoDB**
+   ```bash
+   # Using Docker
+   docker run -d -p 27017:27017 --name mongodb mongo:latest
+   
+   # Or install MongoDB locally
+   ```
+
+4. **Start development server**
+   ```bash
+   bun dev
+   ```
+
+5. **Test the API**
+   ```bash
+   curl http://localhost:8000/health
+   ```
+
+## Available Scripts
+
+- `bun dev` - Start development server with hot reload
+- `bun build` - Build for production
+- `bun start` - Start production server
+- `bun test` - Run unit tests
+- `bun test:coverage` - Run tests with coverage
+- `bun lint` - Run ESLint
+
+## API Endpoints
+
+### Authentication Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/login` | User login |
+| POST | `/auth/signup` | User registration |
+| POST | `/auth/logout` | User logout |
+| POST | `/auth/refresh` | Refresh access token |
+| POST | `/auth/send-otp` | Send OTP for verification |
+| POST | `/auth/verify-otp` | Verify OTP code |
+
+### User Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/users/profile` | Get user profile |
+| PUT | `/users/profile` | Update user profile |
+| DELETE | `/users/profile` | Delete user account |
+
+### Health Check
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/health` | API health status |
+
+## Request/Response Format
+
+### Request Format
+All requests should include:
+- `Content-Type: application/json` header
+- JSON body for POST/PUT requests
+- Authorization header for protected routes
+
+### Response Format
+All responses follow this structure:
+
+```typescript
+// Success Response
+{
+  "success": true,
+  "data": any,
+  "message": string
+}
+
+// Error Response
+{
+  "success": false,
+  "error": {
+    "code": string,
+    "message": string,
+    "details": any
+  }
+}
+```
+
+## Authentication Flow
+
+### 1. User Registration
+```typescript
+POST /auth/signup
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "user": { ... },
+    "token": "jwt-token",
+    "refreshToken": "refresh-token"
+  }
+}
+```
+
+### 2. User Login
+```typescript
+POST /auth/login
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "user": { ... },
+    "token": "jwt-token",
+    "refreshToken": "refresh-token"
+  }
+}
+```
+
+### 3. Protected Route Access
+```typescript
+GET /users/profile
+Headers:
+{
+  "Authorization": "Bearer jwt-token"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "user": { ... }
+  }
+}
+```
+
+## Database Models
+
+### User Model
+```typescript
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  password: string;
+  isVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Session Model
+```typescript
+interface Session {
+  _id: string;
+  userId: string;
+  token: string;
+  refreshToken: string;
+  expiresAt: Date;
+  createdAt: Date;
+}
+```
+
+### Verification Model
+```typescript
+interface Verification {
+  _id: string;
+  email: string;
+  code: string;
+  type: 'email' | 'password-reset';
+  expiresAt: Date;
+  createdAt: Date;
+}
+```
+
+## Error Handling
+
+### Custom Error Types
+```typescript
+class AppError extends Error {
+  statusCode: number;
+  isOperational: boolean;
+  
+  constructor(message: string, statusCode: number) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = true;
+  }
+}
+```
+
+### Error Middleware
+```typescript
+app.use((error: AppError, req: Request, res: Response, next: NextFunction) => {
+  const statusCode = error.statusCode || 500;
+  const message = error.message || 'Internal Server Error';
+  
+  res.status(statusCode).json({
+    success: false,
+    error: {
+      code: error.name,
+      message,
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    }
+  });
+});
+```
+
+## Validation
+
+### Request Validation with Zod
+```typescript
+import { z } from 'zod';
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string().min(6, 'Password must be at least 6 characters')
+});
+
+export const validateLogin = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    loginSchema.parse(req.body);
+    next();
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid request data',
+        details: error.errors
+      }
+    });
+  }
+};
+```
+
+## Testing
+
+### Unit Tests
+```typescript
+import { describe, test, expect } from 'vitest';
+import { authService } from '../auth.service';
+
+describe('AuthService', () => {
+  test('should create user on signup', async () => {
+    const userData = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password123'
+    };
+    
+    const result = await authService.signup(userData);
+    expect(result.user.email).toBe(userData.email);
+  });
+});
+```
+
+### Integration Tests
+```typescript
+import request from 'supertest';
+import { app } from '../app';
+
+describe('Auth Routes', () => {
+  test('POST /auth/login should return token', async () => {
+    const response = await request(app)
+      .post('/auth/login')
+      .send({
+        email: 'test@example.com',
+        password: 'password123'
+      });
+    
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.token).toBeDefined();
+  });
+});
+```
+
+## Deployment
+
+### Docker Deployment
+```dockerfile
+FROM bun:1.2-alpine
+
+WORKDIR /app
+COPY package.json bun.lockb ./
+RUN bun install --production
+
+COPY . .
+RUN bun run build
+
+EXPOSE 8000
+CMD ["bun", "start"]
+```
+
+### Environment Variables for Production
+```bash
+NODE_ENV=production
+PORT=8000
+MONGODB_URI=mongodb://mongo:27017/drive_connect
+JWT_SECRET=your-production-jwt-secret
+JWT_REFRESH_SECRET=your-production-refresh-secret
+```
+
+## Security Best Practices
+
+1. **Environment Variables**: Never commit secrets to version control
+2. **Input Validation**: Validate all incoming requests
+3. **Rate Limiting**: Implement rate limiting for API endpoints
+4. **CORS**: Configure CORS properly for production
+5. **Helmet**: Use security headers middleware
+6. **Password Hashing**: Use bcrypt for password hashing
+7. **JWT Security**: Use strong secrets and appropriate expiration times
+
+## Next Steps
+
+- [Authentication Module](/docs/backend/authentication) - Deep dive into auth system
+- [Database Integration](/docs/backend/database) - MongoDB setup and models
+- [API Documentation](/docs/backend/api) - Complete API reference
+- [Testing Guide](/docs/testing/backend) - Backend testing strategies
+- [Deployment Guide](/docs/deployment/backend) - Production deployment

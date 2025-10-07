@@ -40,6 +40,14 @@ const nextConfig: NextConfig = {
 	experimental: {
 		optimizePackageImports: ["lucide-react", "@radix-ui/react-slot"],
 	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: "https",
+				hostname: "images.pexels.com",
+			},
+		],
+	},
 };
 
 export default nextConfig;

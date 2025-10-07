@@ -1,0 +1,159 @@
+---
+title: Rabtx Documentation
+description: Comprehensive documentation for Rabtx - A modern boilerplate platform
+---
+
+# Welcome to Rabtx
+
+Rabtx is a modern, scalable boilerplate platform built with Next.js, Express.js, and TypeScript. This documentation will guide you through setting up, developing, and deploying applications using our platform.
+
+## What is Rabtx?
+
+Rabtx is a full-stack boilerplate that provides:
+
+- **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, and shadcn/ui components
+- **Backend**: Express.js with TypeScript, authentication, and database integration
+- **Testing**: Comprehensive test suite with Vitest and Playwright
+- **Documentation**: Built-in documentation system with Fumadocs
+- **Deployment**: Docker-ready with production optimizations
+
+## Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd turbo-repo
+   ```
+
+2. **Install dependencies**
+   ```bash
+   bun install
+   ```
+
+3. **Start development**
+   ```bash
+   bun dev
+   ```
+
+4. **Run tests**
+   ```bash
+   bun test
+   ```
+
+## Project Structure
+
+Our monorepo is organized using Turbo and follows a feature-based architecture:
+
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+
+<Files>
+  <Folder name="turbo-repo" defaultOpen>
+    <Folder name="apps" defaultOpen>
+      <Folder name="front-end">
+        <File name="package.json" />
+        <File name="next.config.ts" />
+        <File name="tsconfig.json" />
+        <Folder name="src">
+          <Folder name="app" />
+          <Folder name="features" />
+          <Folder name="shared" />
+        </Folder>
+        <Folder name="tests" />
+      </Folder>
+      <Folder name="backend">
+        <File name="package.json" />
+        <File name="tsconfig.json" />
+        <Folder name="src">
+          <Folder name="modules" />
+          <Folder name="models" />
+          <Folder name="configs" />
+        </Folder>
+        <Folder name="docker" />
+      </Folder>
+      <Folder name="docs">
+        <File name="package.json" />
+        <File name="next.config.mjs" />
+        <Folder name="content">
+          <Folder name="docs" />
+        </Folder>
+        <Folder name="src" />
+      </Folder>
+    </Folder>
+    <Folder name="packages" defaultOpen>
+      <Folder name="ui">
+        <File name="package.json" />
+        <Folder name="src">
+          <Folder name="components" />
+          <Folder name="hooks" />
+          <Folder name="lib" />
+        </Folder>
+      </Folder>
+      <Folder name="tsconfig">
+        <File name="package.json" />
+        <File name="base.json" />
+        <File name="nextjs.json" />
+        <File name="backend.json" />
+      </Folder>
+      <Folder name="vitest-config">
+        <File name="package.json" />
+        <Folder name="src">
+          <Folder name="configs" />
+        </Folder>
+      </Folder>
+      <Folder name="playwright-config">
+        <File name="package.json" />
+        <File name="playwright.config.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="scripts">
+      <File name="audit.js" />
+    </Folder>
+    <File name="package.json" />
+    <File name="turbo.json" />
+    <File name="tsconfig.json" />
+  </Folder>
+</Files>
+
+## Features
+
+### Frontend Features
+- **Modern UI**: Built with shadcn/ui components and Tailwind CSS
+- **Authentication**: Complete auth flow with login, signup, and OTP verification
+- **Dashboard**: User dashboard with data visualization
+- **Landing Page**: Beautiful, responsive landing page with animations
+- **Testing**: Unit tests with Vitest and E2E tests with Playwright
+
+### Backend Features
+- **RESTful API**: Express.js with TypeScript
+- **Authentication**: JWT-based authentication with refresh tokens
+- **Database**: MongoDB integration with Mongoose
+- **Validation**: Request validation with Zod
+- **Error Handling**: Comprehensive error handling and logging
+
+### Development Features
+- **Type Safety**: Full TypeScript support across the stack
+- **Code Quality**: ESLint, Biome, and Prettier for code formatting
+- **Testing**: Comprehensive test coverage
+- **Documentation**: Auto-generated documentation
+- **Docker**: Production-ready Docker configuration
+
+## Getting Started
+
+Choose your path:
+
+- [Frontend Development](/docs/frontend/getting-started) - Learn about the Next.js frontend
+- [Backend Development](/docs/backend/getting-started) - Learn about the Express.js backend
+- [Testing](/docs/testing/overview) - Learn about our testing setup
+- [Deployment](/docs/deployment/overview) - Learn about deployment options
+
+## Support
+
+If you have questions or need help:
+
+- Check our [FAQ](/docs/faq)
+- Join our [Discord community](https://discord.gg/rabtx)
+- Open an issue on [GitHub](https://github.com/your-org/rabtx)
+
+---
+
+*Last updated: {new Date().toLocaleDateString()}*

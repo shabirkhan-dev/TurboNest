@@ -1,0 +1,487 @@
+---
+title: Testing Overview
+description: Comprehensive guide to testing in Rabtx
+---
+
+# Testing Overview
+
+Rabtx implements a comprehensive testing strategy using Vitest for unit tests and Playwright for end-to-end tests. Our testing approach ensures code quality, reliability, and maintainability.
+
+## Testing Philosophy
+
+We follow these principles:
+
+- **Test Pyramid**: More unit tests, fewer integration tests, minimal E2E tests
+- **Test-Driven Development**: Write tests before implementing features
+- **Comprehensive Coverage**: Aim for high test coverage across all modules
+- **Fast Feedback**: Tests should run quickly and provide immediate feedback
+- **Maintainable Tests**: Tests should be easy to understand and maintain
+
+## Testing Stack
+
+### Unit Testing
+- **Vitest**: Fast unit test framework
+- **React Testing Library**: React component testing utilities
+- **Jest DOM**: Custom matchers for DOM testing
+- **MSW**: API mocking for integration tests
+
+### End-to-End Testing
+- **Playwright**: Cross-browser E2E testing
+- **Page Object Model**: Organized test structure
+- **Fixtures**: Reusable test setup
+
+## Project Structure
+
+import { File, Folder, Files } from 'fumadocs-ui/components/files';
+
+<Files>
+  <Folder name="tests" defaultOpen>
+    <Folder name="unit" defaultOpen>
+      <Folder name="features">
+        <Folder name="auth">
+          <File name="login-form.test.tsx" />
+          <File name="signup-form.test.tsx" />
+          <File name="otp-form.test.tsx" />
+          <File name="use-auth.test.tsx" />
+          <File name="auth-service.test.ts" />
+        </Folder>
+        <Folder name="dashboard">
+          <File name="dashboard-hooks.test.tsx" />
+          <File name="stats-cards.test.tsx" />
+        </Folder>
+        <Folder name="landing">
+          <File name="feature-card.test.tsx" />
+          <File name="testimonial-card.test.tsx" />
+          <File name="animated-testimonials.test.tsx" />
+        </Folder>
+      </Folder>
+      <Folder name="shared">
+        <File name="use-mobile.test.tsx" />
+        <File name="api-client.test.ts" />
+      </Folder>
+      <Folder name="utils">
+        <File name="test-utils.test.ts" />
+      </Folder>
+    </Folder>
+    <Folder name="e2e" defaultOpen>
+      <File name="auth-flow.spec.ts" />
+      <File name="dashboard.spec.ts" />
+      <File name="landing-page.spec.ts" />
+      <File name="user-journey.spec.ts" />
+    </Folder>
+    <Folder name="fixtures">
+      <File name="auth-fixtures.ts" />
+      <File name="user-fixtures.ts" />
+    </Folder>
+    <Folder name="utils">
+      <File name="test-utils.tsx" />
+      <File name="playwright-helpers.ts" />
+      <File name="test-setup.ts" />
+    </Folder>
+  </Folder>
+</Files>
+
+## Unit Testing
+
+### Frontend Unit Tests
+
+#### Component Testing
+```typescript
+import { render, screen } from '@testing-library/react';
+import { LoginForm } from '@/features/auth/components';
+
+describe('LoginForm Component', () => {
+  test('renders login form', () => {
+    render(<LoginForm />);
+    
+    expect(screen.getByText('Welcome back')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
+  });
+
+  test('validates email input', async () => {
+    render(<LoginForm />);
+    
+    const emailInput = screen.getByPlaceholderText('m@example.com');
+    await user.type(emailInput, 'invalid-email');
+    
+    expect(screen.getByText('Invalid email format')).toBeInTheDocument();
+  });
+});
+```
+
+#### Hook Testing
+```typescript
+import { renderHook, act } from '@testing-library/react';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+
+describe('useAuth Hook', () => {
+  test('should initialize with no user', () => {
+    const { result } = renderHook(() => useAuth());
+    
+    expect(result.current.user).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  test('should login successfully', async () => {
+    const { result } = renderHook(() => useAuth());
+    
+    await act(async () => {
+      await result.current.login({
+        email: 'test@example.com',
+        password: 'password123'
+      });
+    });
+    
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.user).toBeDefined();
+  });
+});
+```
+
+#### Service Testing
+```typescript
+import { describe, test, expect, vi } from 'vitest';
+import { authService } from '@/features/auth/services/auth-service';
+
+// Mock fetch
+global.fetch = vi.fn();
+
+describe('AuthService', () => {
+  test('should login successfully', async () => {
+    const mockResponse = {
+      user: { id: '1', email: 'test@example.com' },
+      token: 'jwt-token'
+    };
+    
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockResponse)
+    } as Response);
+    
+    const result = await authService.login({
+      email: 'test@example.com',
+      password: 'password123'
+    });
+    
+    expect(result.user.email).toBe('test@example.com');
+    expect(result.token).toBe('jwt-token');
+  });
+});
+```
+
+### Backend Unit Tests
+
+#### Service Testing
+```typescript
+import { describe, test, expect, vi } from 'vitest';
+import { AuthService } from '../auth.service';
+import { User } from '../../models/user';
+
+describe('AuthService', () => {
+  test('should create user on signup', async () => {
+    const userData = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password123'
+    };
+    
+    const result = await AuthService.signup(userData);
+    
+    expect(result.user.email).toBe(userData.email);
+    expect(result.token).toBeDefined();
+  });
+});
+```
+
+#### Controller Testing
+```typescript
+import { describe, test, expect, vi } from 'vitest';
+import request from 'supertest';
+import { app } from '../../app';
+
+describe('Auth Controller', () => {
+  test('POST /auth/login should return token', async () => {
+    const response = await request(app)
+      .post('/auth/login')
+      .send({
+        email: 'test@example.com',
+        password: 'password123'
+      });
+    
+    expect(response.status).toBe(200);
+    expect(response.body.success).toBe(true);
+    expect(response.body.data.token).toBeDefined();
+  });
+});
+```
+
+## End-to-End Testing
+
+### Playwright Setup
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication Flow', () => {
+  test('user can login successfully', async ({ page }) => {
+    await page.goto('/login');
+    
+    await page.fill('[data-testid="email"]', 'test@example.com');
+    await page.fill('[data-testid="password"]', 'password123');
+    await page.click('[data-testid="submit"]');
+    
+    await expect(page).toHaveURL('/dashboard');
+    await expect(page.locator('text=Welcome')).toBeVisible();
+  });
+});
+```
+
+### Page Object Model
+```typescript
+export class LoginPage {
+  constructor(private page: Page) {}
+  
+  async goto() {
+    await this.page.goto('/login');
+  }
+  
+  async fillEmail(email: string) {
+    await this.page.fill('[data-testid="email"]', email);
+  }
+  
+  async fillPassword(password: string) {
+    await this.page.fill('[data-testid="password"]', password);
+  }
+  
+  async submit() {
+    await this.page.click('[data-testid="submit"]');
+  }
+  
+  async login(email: string, password: string) {
+    await this.fillEmail(email);
+    await this.fillPassword(password);
+    await this.submit();
+  }
+}
+```
+
+### Test Fixtures
+```typescript
+import { test as base } from '@playwright/test';
+
+type AuthFixtures = {
+  authenticatedPage: Page;
+};
+
+export const test = base.extend<AuthFixtures>({
+  authenticatedPage: async ({ page }, use) => {
+    // Setup authenticated state
+    await page.goto('/login');
+    await page.fill('[data-testid="email"]', 'test@example.com');
+    await page.fill('[data-testid="password"]', 'password123');
+    await page.click('[data-testid="submit"]');
+    await page.waitForURL('/dashboard');
+    
+    await use(page);
+  },
+});
+```
+
+## Test Utilities
+
+### React Testing Utilities
+```typescript
+import { render, RenderOptions } from '@testing-library/react';
+import { ReactElement } from 'react';
+
+const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </ThemeProvider>
+  );
+};
+
+const customRender = (
+  ui: ReactElement,
+  options?: Omit<RenderOptions, 'wrapper'>
+) => render(ui, { wrapper: AllTheProviders, ...options });
+
+export * from '@testing-library/react';
+export { customRender as render };
+```
+
+### Mock Data
+```typescript
+export const createMockUser = (overrides = {}) => ({
+  id: '1',
+  name: 'Test User',
+  email: 'test@example.com',
+  isVerified: true,
+  createdAt: new Date(),
+  ...overrides
+});
+
+export const createMockAuthResponse = () => ({
+  user: createMockUser(),
+  token: 'mock-jwt-token',
+  refreshToken: 'mock-refresh-token'
+});
+```
+
+## Running Tests
+
+### Unit Tests
+```bash
+# Run all unit tests
+bun test
+
+# Run tests in watch mode
+bun test:watch
+
+# Run tests with coverage
+bun test:coverage
+
+# Run specific test file
+bun test src/features/auth/components/login-form.test.tsx
+```
+
+### E2E Tests
+```bash
+# Run all E2E tests
+bun test:e2e
+
+# Run E2E tests in UI mode
+bun test:e2e:ui
+
+# Run E2E tests in debug mode
+bun test:e2e:debug
+
+# Run specific E2E test
+bun test:e2e tests/e2e/auth-flow.spec.ts
+```
+
+## Test Configuration
+
+### Vitest Configuration
+```typescript
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./tests/utils/test-setup.ts'],
+    globals: true,
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+```
+
+### Playwright Configuration
+```typescript
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
+  webServer: {
+    command: 'bun dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+## Best Practices
+
+### Writing Good Tests
+
+1. **Arrange-Act-Assert**: Structure tests clearly
+2. **Descriptive Names**: Use clear, descriptive test names
+3. **Single Responsibility**: Test one thing at a time
+4. **Independent Tests**: Tests should not depend on each other
+5. **Fast Tests**: Keep tests fast and focused
+
+### Test Data Management
+
+1. **Factory Functions**: Use factory functions for test data
+2. **Mock Data**: Create realistic mock data
+3. **Data Cleanup**: Clean up test data after tests
+4. **Isolation**: Ensure tests don't affect each other
+
+### Accessibility Testing
+
+1. **Screen Reader Testing**: Test with screen readers
+2. **Keyboard Navigation**: Test keyboard-only navigation
+3. **ARIA Attributes**: Verify proper ARIA usage
+4. **Color Contrast**: Check color contrast ratios
+
+## Coverage Goals
+
+- **Unit Tests**: 90%+ coverage
+- **Integration Tests**: 80%+ coverage
+- **E2E Tests**: Critical user journeys
+
+## Continuous Integration
+
+Tests run automatically on:
+- Pull requests
+- Main branch pushes
+- Scheduled runs
+
+## Debugging Tests
+
+### Unit Test Debugging
+```bash
+# Run tests with debug output
+bun test --reporter=verbose
+
+# Run specific test with debug
+bun test --run src/features/auth/components/login-form.test.tsx
+```
+
+### E2E Test Debugging
+```bash
+# Run with debug mode
+bun test:e2e:debug
+
+# Run with trace
+bun test:e2e --trace on
+```
+
+## Next Steps
+
+- [Frontend Testing](/docs/testing/frontend) - Detailed frontend testing guide
+- [Backend Testing](/docs/testing/backend) - Backend testing strategies
+- [E2E Testing](/docs/testing/e2e) - End-to-end testing guide
+- [Test Automation](/docs/testing/automation) - CI/CD testing setup

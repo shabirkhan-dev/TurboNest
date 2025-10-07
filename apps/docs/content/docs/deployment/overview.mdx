@@ -1,0 +1,686 @@
+---
+title: Deployment Overview
+description: Complete guide to deploying Rabtx applications
+---
+
+# Deployment Overview
+
+Rabtx supports multiple deployment strategies for both frontend and backend applications. This guide covers Docker deployment, cloud platform deployment, and production optimization.
+
+## Deployment Options
+
+### Frontend Deployment
+- **Vercel**: Recommended for Next.js applications
+- **Netlify**: Alternative static hosting
+- **Docker**: Containerized deployment
+- **AWS S3 + CloudFront**: Static hosting with CDN
+
+### Backend Deployment
+- **Docker**: Containerized deployment
+- **Railway**: Simple cloud deployment
+- **AWS EC2**: Virtual machine deployment
+- **Google Cloud Run**: Serverless container deployment
+
+## Prerequisites
+
+Before deploying, ensure you have:
+
+- Production-ready code
+- Environment variables configured
+- Database setup
+- SSL certificates (for production)
+- Domain name (optional)
+
+## Environment Configuration
+
+### Frontend Environment Variables
+
+Create `.env.production` for production:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://api.yourdomain.com
+NEXT_PUBLIC_APP_NAME=Rabtx
+NEXT_PUBLIC_APP_VERSION=1.0.0
+NEXT_PUBLIC_GA_ID=your-google-analytics-id
+```
+
+### Backend Environment Variables
+
+Create `.env.production` for production:
+
+```bash
+NODE_ENV=production
+PORT=8000
+MONGODB_URI=mongodb://mongo:27017/drive_connect
+JWT_SECRET=your-production-jwt-secret
+JWT_REFRESH_SECRET=your-production-refresh-secret
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+CORS_ORIGIN=https://yourdomain.com
+```
+
+## Docker Deployment
+
+### Frontend Dockerfile
+
+```dockerfile
+# Multi-stage build for Next.js
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]
+```
+
+### Backend Dockerfile
+
+```dockerfile
+FROM bun:1.2-alpine AS base
+
+# Install dependencies
+FROM base AS deps
+WORKDIR /app
+COPY package.json bun.lockb ./
+RUN bun install --frozen-lockfile
+
+# Build the application
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN bun run build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nodejs
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+USER nodejs
+
+EXPOSE 8000
+
+CMD ["bun", "start"]
+```
+
+### Docker Compose
+
+```yaml
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./apps/front-end
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/drive_connect
+      - JWT_SECRET=your-production-jwt-secret
+      - JWT_REFRESH_SECRET=your-production-refresh-secret
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+volumes:
+  mongo_data:
+```
+
+### Build and Deploy
+
+```bash
+# Build all services
+docker-compose build
+
+# Start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+## Vercel Deployment (Frontend)
+
+### 1. Install Vercel CLI
+
+```bash
+npm i -g vercel
+```
+
+### 2. Configure Vercel
+
+Create `vercel.json`:
+
+```json
+{
+  "framework": "nextjs",
+  "buildCommand": "bun run build",
+  "devCommand": "bun run dev",
+  "installCommand": "bun install",
+  "outputDirectory": ".next"
+}
+```
+
+### 3. Deploy
+
+```bash
+# Login to Vercel
+vercel login
+
+# Deploy
+vercel --prod
+
+# Set environment variables
+vercel env add NEXT_PUBLIC_API_BASE_URL
+```
+
+### 4. Custom Domain
+
+```bash
+# Add custom domain
+vercel domains add yourdomain.com
+
+# Configure DNS
+# Add CNAME record: www -> cname.vercel-dns.com
+# Add A record: @ -> 76.76.19.61
+```
+
+## Railway Deployment (Backend)
+
+### 1. Install Railway CLI
+
+```bash
+npm install -g @railway/cli
+```
+
+### 2. Deploy
+
+```bash
+# Login to Railway
+railway login
+
+# Initialize project
+railway init
+
+# Deploy
+railway up
+
+# Set environment variables
+railway variables set NODE_ENV=production
+railway variables set MONGODB_URI=your-mongodb-uri
+```
+
+### 3. Database Setup
+
+```bash
+# Add MongoDB service
+railway add mongodb
+
+# Get connection string
+railway variables
+```
+
+## AWS Deployment
+
+### Frontend (S3 + CloudFront)
+
+#### 1. Build and Upload
+
+```bash
+# Build the application
+bun run build
+
+# Upload to S3
+aws s3 sync .next/static s3://your-bucket/static
+aws s3 sync public s3://your-bucket/public
+```
+
+#### 2. CloudFront Configuration
+
+```json
+{
+  "Origins": [
+    {
+      "DomainName": "your-bucket.s3.amazonaws.com",
+      "OriginPath": "",
+      "CustomOriginConfig": {
+        "HTTPPort": 80,
+        "HTTPSPort": 443,
+        "OriginProtocolPolicy": "https-only"
+      }
+    }
+  ],
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "S3-your-bucket",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "CachePolicyId": "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+  }
+}
+```
+
+### Backend (EC2)
+
+#### 1. Launch EC2 Instance
+
+```bash
+# Launch Ubuntu instance
+aws ec2 run-instances \
+  --image-id ami-0c02fb55956c7d316 \
+  --instance-type t3.micro \
+  --key-name your-key-pair \
+  --security-group-ids sg-12345678
+```
+
+#### 2. Install Dependencies
+
+```bash
+# Connect to instance
+ssh -i your-key.pem ubuntu@your-instance-ip
+
+# Install Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Install Bun
+curl -fsSL https://bun.sh/install | bash
+```
+
+#### 3. Deploy Application
+
+```bash
+# Clone repository
+git clone https://github.com/your-org/drive-connect.git
+cd drive-connect/apps/backend
+
+# Install dependencies
+bun install
+
+# Set environment variables
+export NODE_ENV=production
+export MONGODB_URI=your-mongodb-uri
+
+# Start application
+bun start
+```
+
+#### 4. Setup PM2
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Create ecosystem file
+cat > ecosystem.config.js << EOF
+module.exports = {
+  apps: [{
+    name: 'drive-connect-backend',
+    script: 'bun',
+    args: 'start',
+    cwd: '/home/ubuntu/drive-connect/apps/backend',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 8000
+    }
+  }]
+}
+EOF
+
+# Start with PM2
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+## Google Cloud Run
+
+### 1. Build and Push Image
+
+```bash
+# Build image
+docker build -t gcr.io/your-project/drive-connect-backend ./apps/backend
+
+# Push to registry
+docker push gcr.io/your-project/drive-connect-backend
+```
+
+### 2. Deploy to Cloud Run
+
+```bash
+# Deploy service
+gcloud run deploy drive-connect-backend \
+  --image gcr.io/your-project/drive-connect-backend \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars NODE_ENV=production
+```
+
+## Production Optimization
+
+### Frontend Optimization
+
+#### 1. Next.js Configuration
+
+```typescript
+// next.config.ts
+const nextConfig = {
+  output: 'standalone',
+  compress: true,
+  poweredByHeader: false,
+  generateEtags: false,
+  images: {
+    domains: ['your-domain.com'],
+    formats: ['image/webp', 'image/avif'],
+  },
+  experimental: {
+    optimizeCss: true,
+  },
+};
+
+export default nextConfig;
+```
+
+#### 2. Performance Monitoring
+
+```typescript
+// Add performance monitoring
+import { Analytics } from '@vercel/analytics/react';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  );
+}
+```
+
+### Backend Optimization
+
+#### 1. Production Middleware
+
+```typescript
+import helmet from 'helmet';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+
+// Security headers
+app.use(helmet());
+
+// Compression
+app.use(compression());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+```
+
+#### 2. Database Optimization
+
+```typescript
+// MongoDB connection optimization
+mongoose.connect(process.env.MONGODB_URI, {
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  bufferCommands: false,
+  bufferMaxEntries: 0,
+});
+```
+
+## Monitoring and Logging
+
+### Application Monitoring
+
+#### 1. Health Checks
+
+```typescript
+// Frontend health check
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+// Backend health check
+app.get('/health', async (req, res) => {
+  try {
+    await mongoose.connection.db.admin().ping();
+    res.status(200).json({
+      status: 'healthy',
+      database: 'connected',
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      database: 'disconnected',
+      error: error.message,
+    });
+  }
+});
+```
+
+#### 2. Error Tracking
+
+```typescript
+import * as Sentry from '@sentry/nextjs';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+});
+```
+
+### Logging
+
+#### 1. Structured Logging
+
+```typescript
+import winston from 'winston';
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple()
+  }));
+}
+```
+
+## SSL/TLS Configuration
+
+### Let's Encrypt (Nginx)
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+## Backup and Recovery
+
+### Database Backup
+
+```bash
+# MongoDB backup
+mongodump --uri="mongodb://localhost:27017/drive_connect" --out=/backup/$(date +%Y%m%d)
+
+# Automated backup script
+#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+mongodump --uri="$MONGODB_URI" --out="/backup/$DATE"
+tar -czf "/backup/$DATE.tar.gz" "/backup/$DATE"
+rm -rf "/backup/$DATE"
+```
+
+### Application Backup
+
+```bash
+# Backup application files
+tar -czf "app-backup-$(date +%Y%m%d).tar.gz" /path/to/app
+
+# Upload to cloud storage
+aws s3 cp "app-backup-$(date +%Y%m%d).tar.gz" s3://your-backup-bucket/
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Build Failures
+
+```bash
+# Clear cache and rebuild
+rm -rf .next node_modules
+bun install
+bun run build
+```
+
+#### 2. Database Connection Issues
+
+```bash
+# Check database connectivity
+mongosh "mongodb://localhost:27017/drive_connect"
+
+# Check network connectivity
+telnet your-db-host 27017
+```
+
+#### 3. Memory Issues
+
+```bash
+# Monitor memory usage
+pm2 monit
+
+# Restart if needed
+pm2 restart all
+```
+
+## Next Steps
+
+- [Frontend Deployment](/docs/deployment/frontend) - Detailed frontend deployment
+- [Backend Deployment](/docs/deployment/backend) - Backend deployment strategies
+- [Database Setup](/docs/deployment/database) - Database configuration
+- [Monitoring Setup](/docs/deployment/monitoring) - Production monitoring
+- [Security Hardening](/docs/deployment/security) - Security best practices
