@@ -17,7 +17,7 @@
 		"view-report": "open coverage/report/index.html"
 	},
 	"dependencies": {
-		"vitest": "^3.2.4"
+		"vitest": "^4.0.3"
 	},
 	"devDependencies": {
 		"@rabtx/tsconfig": "workspace:*",
